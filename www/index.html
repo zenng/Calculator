@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+	<title>Калькулятор абітурієнта</title>
+	<link rel="stylesheet" href="css/style.css">
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/custom.js
+	"></script>
+</head>
+<body>
+	<div id="wrapper">
+		<header id="mainHead">
+			<div class="container">
+				<h1>Хмельницький національний університет</h1>
+			</div>
+		</header>
+		<div class="container">
+			<div id="formWrapper">
+				<div class="fw-elem">
+					<label for="subject1">Предмет №1:</label>
+					<select name="subject1" id="subject1">
+						<option value="0" disabled="disabled" selected="selected">Українська мова і література</option>
+					</select>
+				</div>
+				<div class="fw-elem">
+					<label for="subject2">Предмет №2: (обов'язкове до вибору)</label>
+					<select name="subject2" id="subject2" class="remRep">
+						<option value="0">Не обрано</option>
+						<option value="1">Математика</option>
+						<option value="2">Біологія</option>
+						<option value="3">Історія України</option>
+					</select>
+				</div>
+				<div class="fw-elem">
+					<label for="subject3">Предмет №3: (обов'язкове до вибору)</label>
+					<select name="subject3" id="subject3" class="remRep">
+						<option value="0">Не обрано</option>
+						<option value="1">Математика</option>
+						<option value="2">Біологія</option>
+						<option value="3">Історія України</option>
+						<option value="4">Географія</option>
+						<option value="5">Англійська мова</option>
+						<option value="6">Творчий конкурс</option>
+						<option value="7">Хімія</option>
+						<option value="8">Іноземна мова</option>
+						<option value="9">Фізика</option>
+					</select>
+				</div>
+				<div class="fw-elem">
+					<label for="subject4">Предмет №4:</label>
+					<select name="subject4" id="subject4" class="remRep">
+						<option value="0">Не обрано</option>
+						<option value="1">Математика</option>
+						<option value="2">Біологія</option>
+						<option value="3">Історія України</option>
+						<option value="4">Географія</option>
+						<option value="5">Англійська мова</option>
+						<option value="6">Творчий конкурс</option>
+						<option value="7">Хімія</option>
+						<option value="8">Іноземна мова</option>
+						<option value="9">Фізика</option>
+					</select>
+				</div>
+				<div class="fw-elem fw-elem-mt">
+					<button id="result" class="button"><span>Розрахувати</span></button>
+				</div>
+				<div class="fw-elem fw-elem-mt">
+					<ul id="content"></ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		$(document).on("click", "#result", function() {
+
+			$('#content').html('');
+
+			var subj2 = $('#subject2 option:selected').text();
+			var subj3 = $('#subject3 option:selected').text();
+			var subj4 = $('#subject4 option:selected').text();
+			var selVal2 = $('#subject2 option:selected').val();
+			var selVal3 = $('#subject3 option:selected').val();
+			var selVal4 = $('#subject4 option:selected').val();
+
+			if ((selVal2 !== "0") && (selVal3 !== "0")) {
+
+				$('#content').append('<li class="listHead">Перелік спеціальностей (спеціалізацій):</li>')
+
+				$.getJSON('js/specList.json', function(json) {
+
+					$.each(json, function(key, data) {
+
+						$.each(data, function(index, spec) {
+
+							var curSpName = spec.specName;
+							var subjLen = Object.keys(spec.subjects).length;
+							var isOk = true;
+							var secondOk = false;
+
+							if ((selVal2 != "0") && (selVal3 != "0") && (selVal4 == "0")) {
+
+								$.each(spec.subjects, function(i, subj) {
+
+									if  (subjLen == 3)  {
+
+										if (i == "1") {
+											if (!(subj == subj2) || (subj == subj3)) {
+												isOk &= false;
+											}
+										}	
+										if (i == "2") {
+											if ((subj == subj2) || (subj == subj3)) {
+												secondOk |= true;
+											}
+										}
+										if (i == "3") {
+											if ((subj == subj2) || (subj == subj3)) {
+												secondOk |= true;
+											}
+											isOk &=secondOk;
+										}										
+									}
+									if 	(subjLen == 2) {
+										if ((i == "1") || (i == "2")) {
+											if (!((subj == subj2) || (subj == subj3))) {
+												isOk &= false;
+											}
+										}	
+
+									}
+								});
+								if (isOk) {
+								//console.log(curSpName);
+								$('#content').append('<li>' + curSpName + '</li>');
+							}
+						}
+
+						else if ((selVal2 != "0") && (selVal3 != "0") && (selVal4 != "0")) {
+
+							$.each(spec.subjects, function(i, subj) {
+
+								if  (subjLen == 3)  {
+
+									if (i == "1") {
+										if (!(subj == subj2) || (subj == subj3) || subj == subj4) {
+											isOk &= false;
+										}
+									}	
+									if (i == "2") {
+										if ((subj == subj2) || (subj == subj3) || subj == subj4) {
+											secondOk |= true;
+										}
+									}
+									if (i == "3") {
+										if ((subj == subj2) || (subj == subj3) || subj == subj4) {
+											secondOk |= true;
+										}
+										isOk &=secondOk;
+									}										
+								}
+								if 	(subjLen == 2) {
+									if ((i == "1") || (i == "2")) {
+										if (!((subj == subj2) || (subj == subj3) || subj == subj4)) {
+											isOk &= false;
+										}
+									}	
+
+								}
+							});
+							if (isOk) {
+								//console.log(curSpName);
+								$('#content').append('<li>' + curSpName + '</li>');
+							}
+						}	
+					});
+					});
+				});
+			}
+			else {
+				$('#content').append('<li>Поля некоректно заповненні.</li>');
+			}
+		});
+	</script>		
+</body>
+</html>
